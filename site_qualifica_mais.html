@@ -80,7 +80,7 @@
   .opstatus.op-lancada{background:var(--ok-bg); color:#0B8B7A;}
 
   .an-table-wrap{overflow-x:auto; border-radius:14px; border:1px solid var(--line); background:var(--card);}
-  .an-table{min-width:2000px; border:none;}
+  .an-table{min-width:900px; border:none;}
   .an-table thead th{white-space:nowrap;}
   .an-table td{white-space:nowrap; font-family:'Space Mono'; font-size:12.5px;}
   .an-table td.txt{font-family:'Inter'; font-size:13px; white-space:normal; max-width:260px;}
@@ -98,7 +98,9 @@
 
 <header>
   <div class="brand">
-    <div class="logo"><span class="word">ÂNC<i></i>RA</span><span class="sub">CONSÓRCIOS</span></div>
+    <div class="logo-lockup" style="display:flex; align-items:center;">
+      <img src="https://raw.githubusercontent.com/ancora-consorcios/verba-de-marketing/main/Logo%20ancora%20varia%C3%A7oes-03.png" alt="Âncora Consórcios" style="height:46px; width:auto;">
+    </div>
     <span class="tag">Qualifica+</span>
   </div>
   <div class="period" id="updatedAtLabel">Carregando dados...</div>
@@ -123,20 +125,17 @@
     <div class="kpis">
       <div class="kpi ok" data-status="Disponível" onclick="filterByStatus('Disponível', this)">
         <div class="num" id="kpiDisponivel">–</div>
-        <div class="lbl">parceiros com verba disponível<br>neste mês</div>
+        <div class="lbl">parceiros com verba disponível</div>
         <div class="clicklbl">clique para filtrar ↓</div>
       </div>
       <div class="kpi alert" data-status="Cancelada" onclick="filterByStatus('Cancelada', this)">
         <div class="num" id="kpiCancelada">–</div>
-        <div class="lbl">parceiros com verba cancelada<br>neste mês (regras do programa)</div>
+        <div class="lbl">parceiros com verba cancelada</div>
         <div class="clicklbl">clique para filtrar ↓</div>
       </div>
     </div>
 
     <table id="dashTable">
-      <caption style="caption-side:top; text-align:left; font-size:12px; color:var(--muted); padding:0 0 10px; font-family:'Inter';">
-        "Status do chamado" reflete o campo Recado/Observações da planilha.
-      </caption>
       <thead>
         <tr>
           <th>Parceiro</th>
@@ -155,52 +154,33 @@
   </section>
 
   <section id="analitico" class="view">
-    <div class="legend">
-      <span><i style="background:var(--teal);"></i> campo novo desta proposta</span>
-      <span><i style="background:#D6DCDE;"></i> campo já existente na planilha atual</span>
-    </div>
-    <p style="font-size:12.5px; color:var(--muted); margin-top:-6px;">
-      Esta aba lista apenas parceiros com direito a verba (Ouro, Diamante, Diamante Black) — mesmo critério de hoje.
+    <p style="font-size:12.5px; color:var(--muted); margin-top:0;">
+      Mostra os parceiros com direito a verba (Ouro, Diamante, Diamante Black) do supervisor no mês selecionado.
     </p>
     <div class="toolbar">
       <label>Mês da verba</label>
       <select id="monthSelectAn" onchange="applyAnFilters()"><option value="">Carregando...</option></select>
       <label>Supervisor</label>
       <select id="supSelectAn" onchange="applyAnFilters()"><option value="todos">Todos os supervisores</option></select>
-      <span class="hint">Uma única base integrando todos os meses — dados de meses anteriores não são apagados.</span>
+      <span class="hint">Base única contemplando todos os meses.</span>
     </div>
     <div class="an-table-wrap">
       <table class="an-table">
         <thead>
           <tr>
-            <th style="background:#00CEBA22;">Mês da Verba</th>
-            <th style="background:#D6DCDE33;">Canal</th>
-            <th style="background:#D6DCDE33;">Regional</th>
-            <th style="background:#D6DCDE33;">Código</th>
-            <th style="background:#D6DCDE33;">Parceiro</th>
-            <th style="background:#D6DCDE33;">Supervisor</th>
-            <th style="background:#D6DCDE33;">Gerente</th>
-            <th style="background:#D6DCDE33;">Classificação</th>
-            <th style="background:#D6DCDE33;">Venda Líquida</th>
-            <th style="background:#D6DCDE33;">Verba</th>
-            <th style="background:#D6DCDE33;">Utilizado</th>
-            <th style="background:#D6DCDE33;">Residual</th>
-            <th style="background:#00CEBA22;">Status da Verba</th>
-            <th style="background:#00CEBA22;">Motivo do Cancelamento</th>
-            <th style="background:#D6DCDE33;">ID Chamado</th>
-            <th style="background:#D6DCDE33;">Data da abertura do chamado</th>
-            <th style="background:#D6DCDE33;">Comprovação</th>
-            <th style="background:#D6DCDE33;">Lançamos a nota?</th>
-            <th style="background:#D6DCDE33;">Recado/Observações</th>
-            <th style="background:#00CEBA22;">Canal comprovação</th>
-            <th style="background:#00CEBA22;">Tipo comprovação</th>
-            <th style="background:#00CEBA22;">Histórico 6 meses</th>
-            <th style="background:#00CEBA22;">Repetição detectada</th>
-            <th style="background:#00CEBA22;">Sugestão gerada</th>
+            <th>Canal</th>
+            <th>Regional</th>
+            <th>Código</th>
+            <th>Parceiro</th>
+            <th>Classificação</th>
+            <th>Venda Líquida</th>
+            <th>Verba</th>
+            <th>ID Chamado</th>
+            <th>Recado/Observações</th>
           </tr>
         </thead>
         <tbody id="anTbody">
-          <tr><td colspan="24" class="loading">Carregando dados da planilha…</td></tr>
+          <tr><td colspan="9" class="loading">Carregando dados da planilha…</td></tr>
         </tbody>
       </table>
     </div>
@@ -285,7 +265,7 @@ async function loadData() {
     document.getElementById('dashTbody').innerHTML =
       '<tr><td colspan="7" class="error-box">Não consegui carregar os dados agora. Detalhe: ' + err.message + '</td></tr>';
     document.getElementById('anTbody').innerHTML =
-      '<tr><td colspan="24" class="error-box">Não consegui carregar os dados agora.</td></tr>';
+      '<tr><td colspan="9" class="error-box">Não consegui carregar os dados agora.</td></tr>';
     document.getElementById('updatedAtLabel').textContent = 'Erro ao carregar';
   }
 }
@@ -427,32 +407,16 @@ function applyFilters() {
 }
 
 function renderAnRow(r) {
-  const monthInfo = parseMes(r.mes);
-  return `<tr data-sup="${r.supervisor||''}" data-month="${monthInfo.key}">
-    <td class="txt">${monthInfo.label}</td>
+  return `<tr data-sup="${r.supervisor||''}" data-month="${parseMes(r.mes).key}">
     <td class="txt">${r.canal||''}</td>
     <td class="txt">${r.regional||''}</td>
     <td>${r.cod||''}</td>
     <td class="txt">${r.parceiro||''}</td>
-    <td class="txt">${r.supervisor||''}</td>
-    <td class="txt">${r.gerente||''}</td>
     <td class="txt">${r.classificacao||''}</td>
     <td>${fmtMoney(r.vendaLiquida)}</td>
     <td>${fmtMoney(r.verba)}</td>
-    <td>${fmtMoney(r.utilizado)}</td>
-    <td>${fmtMoney(r.residual)}</td>
-    <td class="txt">${r.statusVerba||''}</td>
-    <td class="txt">${r.motivo||'—'}</td>
     <td>${r.idChamado||'—'}</td>
-    <td>${r.dataAbertura||'—'}</td>
-    <td class="txt">${r.comprovacao||''}</td>
-    <td class="txt">${r.lancamosNota||''}</td>
     <td class="txt">${r.observacoes||''}</td>
-    <td class="txt">${r.canalComprovacao||'—'}</td>
-    <td class="txt">${r.tipoComprovacao||'—'}</td>
-    <td class="txt">${r.historico||''}</td>
-    <td class="txt">${r.repeticao||''}</td>
-    <td class="txt">${r.sugestao||''}</td>
   </tr>`;
 }
 
@@ -466,7 +430,7 @@ function applyAnFilters() {
   const tbody = document.getElementById('anTbody');
   tbody.innerHTML = filtered.length
     ? filtered.map(renderAnRow).join('')
-    : '<tr class="empty-row"><td colspan="24">Nenhum registro encontrado para esse filtro.</td></tr>';
+    : '<tr class="empty-row"><td colspan="9">Nenhum registro encontrado para esse filtro.</td></tr>';
 }
 
 function showView(id, btn) {
