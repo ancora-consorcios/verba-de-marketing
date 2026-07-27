@@ -163,6 +163,7 @@
       <label>Supervisor</label>
       <select id="supSelectAn" onchange="applyAnFilters()"><option value="todos">Todos os supervisores</option></select>
       <span class="hint">Base única contemplando todos os meses.</span>
+      <button class="clear-filter" onclick="clearAnFilters()">✕ limpar filtros</button>
     </div>
     <div class="an-table-wrap">
       <table class="an-table">
@@ -418,6 +419,12 @@ function renderAnRow(r) {
     <td>${r.idChamado||'—'}</td>
     <td class="txt">${r.observacoes||''}</td>
   </tr>`;
+}
+
+function clearAnFilters() {
+  document.getElementById('supSelectAn').value = 'todos';
+  if (document.getElementById('monthSelectAn').options.length) document.getElementById('monthSelectAn').selectedIndex = 0;
+  applyAnFilters();
 }
 
 function applyAnFilters() {
