@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Qualifica+ — Painel de Sugestões</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;700;800&family=Inter:wght@400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#00273C; --teal:#00CEBA; --lightblue:#104764; --bg:#F4F7F8; --card:#FFFFFF;
+    --line:#E3E9EC; --ink:#0E2430; --muted:#6B808C; --alert:#C2634A; --alert-bg:#FBEDE8; --ok-bg:#E7FAF7;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0; background:var(--bg); color:var(--ink); font-family:'Inter',sans-serif;}
+  h1,h2,h3,.display{font-family:'Manrope',sans-serif;}
+  .mono{font-family:'Space Mono',monospace;}
+
+  header{background:var(--navy); color:#fff; padding:20px 32px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;}
+  .brand{display:flex; align-items:center; gap:14px;}
+  .logo{display:flex; flex-direction:column; line-height:1;}
+  .logo .word{font-family:'Manrope'; font-weight:800; font-size:19px; letter-spacing:1px; display:flex; align-items:center; gap:2px;}
+  .logo .word i{display:inline-block; width:11px; height:11px; border-radius:50%; border:2px solid var(--teal); position:relative; top:1px;}
+  .logo .sub{font-size:8.5px; letter-spacing:3px; color:var(--teal); margin-top:3px; font-family:'Manrope'; font-weight:700;}
+  .tag{font-size:11px; font-weight:700; letter-spacing:1.2px; text-transform:uppercase; color:var(--navy); background:var(--teal); padding:3px 9px; border-radius:20px;}
+  header .period{font-family:'Space Mono'; font-size:11.5px; color:#9FD4CE; text-align:right;}
+
+  nav.tabs{display:flex; gap:6px; padding:14px 32px 0; background:var(--navy);}
+  nav.tabs button{font-family:'Manrope'; font-weight:700; font-size:13.5px; background:transparent; color:#8FAAB8; border:none; padding:12px 18px; border-radius:10px 10px 0 0; cursor:pointer;}
+  nav.tabs button.active{background:var(--bg); color:var(--navy);}
+
+  main{padding:28px 32px 60px; max-width:1320px; margin:0 auto;}
+  .view{display:none;}
+  .view.active{display:block;}
+
+  .toolbar{display:flex; align-items:center; gap:16px; margin-bottom:22px; flex-wrap:wrap;}
+  .toolbar label{font-size:12px; color:var(--muted); font-weight:600; text-transform:uppercase; letter-spacing:.5px;}
+  select{font-family:'Inter'; font-weight:600; font-size:14px; color:var(--navy); background:var(--card); border:1.5px solid var(--line); border-radius:9px; padding:9px 14px; min-width:200px;}
+  .toolbar .hint{font-size:12.5px; color:var(--muted);}
+  .clear-filter{font-family:'Inter'; font-weight:600; font-size:12.5px; color:var(--lightblue); background:none; border:none; cursor:pointer; text-decoration:underline;}
+
+  .kpis{display:grid; grid-template-columns:repeat(2,1fr); gap:16px; margin-bottom:26px;}
+  .kpi{background:var(--card); border:1px solid var(--line); border-radius:14px; padding:18px 20px; cursor:pointer; text-align:left;}
+  .kpi:hover{box-shadow:0 4px 14px rgba(0,39,60,.08); border-color:var(--lightblue);}
+  .kpi.active-filter{border-color:var(--navy); box-shadow:0 0 0 2px var(--navy) inset;}
+  .kpi .num{font-family:'Space Mono'; font-weight:700; font-size:28px; color:var(--navy);}
+  .kpi .lbl{font-size:12.5px; color:var(--muted); margin-top:4px; line-height:1.4;}
+  .kpi .clicklbl{font-size:10.5px; color:var(--lightblue); margin-top:8px; font-weight:600; text-transform:uppercase; letter-spacing:.4px;}
+  .kpi.ok .num{color:var(--teal);}
+  .kpi.alert .num{color:var(--alert);}
+
+  table{width:100%; border-collapse:collapse; background:var(--card); border-radius:14px; overflow:hidden; border:1px solid var(--line);}
+  thead th{background:#EEF3F4; color:var(--navy); font-family:'Manrope'; font-size:11.5px; text-transform:uppercase; letter-spacing:.4px; text-align:left; padding:12px 14px; border-bottom:1px solid var(--line); white-space:nowrap;}
+  tbody td{padding:13px 14px; font-size:13.5px; border-bottom:1px solid var(--line); vertical-align:middle;}
+  tbody tr:last-child td{border-bottom:none;}
+  tbody tr:hover{background:#FAFCFC;}
+
+  .partner{font-weight:700; color:var(--navy);}
+  .partner .sub{display:block; font-weight:400; color:var(--muted); font-size:11.5px; margin-top:2px;}
+  .pill{display:inline-block; font-size:11px; font-weight:700; padding:3px 9px; border-radius:20px; letter-spacing:.3px; white-space:nowrap;}
+  .pill.diamante-black{background:var(--navy); color:#fff;}
+  .pill.diamante{background:var(--lightblue); color:#fff;}
+  .pill.ouro{background:#EAC257; color:#4A3A05;}
+
+  .verba-txt{font-family:'Space Mono'; font-size:12px; color:var(--navy);}
+  .verba-txt small{font-family:'Inter'; color:var(--muted);}
+  .tipos-usados{font-size:12.5px; color:var(--ink); max-width:220px; display:inline-block;}
+  .tipos-usados .none{color:var(--muted); font-style:italic;}
+
+  .alert-tag{display:inline-flex; align-items:center; gap:6px; background:var(--alert-bg); color:var(--alert); font-size:11.5px; font-weight:700; padding:4px 9px; border-radius:8px; white-space:nowrap;}
+  .ok-tag{display:inline-flex; align-items:center; gap:6px; background:var(--ok-bg); color:#0B8B7A; font-size:11.5px; font-weight:700; padding:4px 9px; border-radius:8px; white-space:nowrap;}
+  .neutral-tag{display:inline-flex; align-items:center; gap:6px; background:#EEF3F4; color:var(--muted); font-size:11.5px; font-weight:700; padding:4px 9px; border-radius:8px; white-space:nowrap;}
+
+  .suggestion{font-size:12.8px; line-height:1.4; color:var(--ink); max-width:230px; display:inline-block;}
+  .suggestion b{color:var(--navy);}
+
+  .opstatus{display:inline-block; font-size:11px; font-weight:700; padding:4px 9px; border-radius:8px; line-height:1.3; max-width:190px;}
+  .opstatus.op-blank{background:#EEF3F4; color:var(--muted);}
+  .opstatus.op-comprovacao{background:var(--alert-bg); color:var(--alert);}
+  .opstatus.op-nf{background:#FFF1D6; color:#8A6116;}
+  .opstatus.op-lancada{background:var(--ok-bg); color:#0B8B7A;}
+
+  .an-table-wrap{overflow-x:auto; border-radius:14px; border:1px solid var(--line); background:var(--card);}
+  .an-table{min-width:2000px; border:none;}
+  .an-table thead th{white-space:nowrap;}
+  .an-table td{white-space:nowrap; font-family:'Space Mono'; font-size:12.5px;}
+  .an-table td.txt{font-family:'Inter'; font-size:13px; white-space:normal; max-width:260px;}
+  .legend{display:flex; gap:18px; margin-bottom:16px; flex-wrap:wrap; font-size:12px; color:var(--muted);}
+  .legend span{display:inline-flex; align-items:center; gap:6px;}
+  .legend i{width:10px; height:10px; border-radius:3px; display:inline-block;}
+  footer{text-align:center; padding:20px; font-size:11.5px; color:var(--muted);}
+
+  .loading, .error-box{padding:40px; text-align:center; color:var(--muted); font-size:14px;}
+  .error-box{color:var(--alert);}
+  .empty-row td{text-align:center; color:var(--muted); padding:24px;}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <div class="logo"><span class="word">ÂNC<i></i>RA</span><span class="sub">CONSÓRCIOS</span></div>
+    <span class="tag">Qualifica+</span>
+  </div>
+  <div class="period" id="updatedAtLabel">Carregando dados...</div>
+</header>
+
+<nav class="tabs">
+  <button class="active" onclick="showView('dash', this)">Dashboard</button>
+  <button onclick="showView('analitico', this)">Analítico</button>
+</nav>
+
+<main>
+  <section id="dash" class="view active">
+    <div class="toolbar">
+      <label>Mês da verba</label>
+      <select id="monthSelect" onchange="applyFilters()"><option value="">Carregando...</option></select>
+      <label>Supervisor</label>
+      <select id="supSelect" onchange="applyFilters()"><option value="todos">Todos os supervisores</option></select>
+      <span class="hint">Mostra os parceiros com direito a verba (Ouro, Diamante, Diamante Black) do supervisor no mês selecionado.</span>
+      <button class="clear-filter" id="clearFilterBtn" onclick="clearAllFilters()">✕ limpar filtros</button>
+    </div>
+
+    <div class="kpis">
+      <div class="kpi ok" data-status="Disponível" onclick="filterByStatus('Disponível', this)">
+        <div class="num" id="kpiDisponivel">–</div>
+        <div class="lbl">parceiros com verba disponível<br>neste mês</div>
+        <div class="clicklbl">clique para filtrar ↓</div>
+      </div>
+      <div class="kpi alert" data-status="Cancelada" onclick="filterByStatus('Cancelada', this)">
+        <div class="num" id="kpiCancelada">–</div>
+        <div class="lbl">parceiros com verba cancelada<br>neste mês (regras do programa)</div>
+        <div class="clicklbl">clique para filtrar ↓</div>
+      </div>
+    </div>
+
+    <table id="dashTable">
+      <caption style="caption-side:top; text-align:left; font-size:12px; color:var(--muted); padding:0 0 10px; font-family:'Inter';">
+        "Status do chamado" reflete o campo Recado/Observações da planilha.
+      </caption>
+      <thead>
+        <tr>
+          <th>Parceiro</th>
+          <th>Classificação</th>
+          <th>Verba (utilizado / disponível)</th>
+          <th>Tipos usados (histórico)</th>
+          <th>Diversificação</th>
+          <th>Status do chamado</th>
+          <th>Sugestão</th>
+        </tr>
+      </thead>
+      <tbody id="dashTbody">
+        <tr><td colspan="7" class="loading">Carregando dados da planilha…</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section id="analitico" class="view">
+    <div class="legend">
+      <span><i style="background:var(--teal);"></i> campo novo desta proposta</span>
+      <span><i style="background:#D6DCDE;"></i> campo já existente na planilha atual</span>
+    </div>
+    <p style="font-size:12.5px; color:var(--muted); margin-top:-6px;">
+      Esta aba lista apenas parceiros com direito a verba (Ouro, Diamante, Diamante Black) — mesmo critério de hoje.
+    </p>
+    <div class="toolbar">
+      <label>Mês da verba</label>
+      <select id="monthSelectAn" onchange="applyAnFilters()"><option value="">Carregando...</option></select>
+      <label>Supervisor</label>
+      <select id="supSelectAn" onchange="applyAnFilters()"><option value="todos">Todos os supervisores</option></select>
+      <span class="hint">Uma única base integrando todos os meses — dados de meses anteriores não são apagados.</span>
+    </div>
+    <div class="an-table-wrap">
+      <table class="an-table">
+        <thead>
+          <tr>
+            <th style="background:#00CEBA22;">Mês da Verba</th>
+            <th style="background:#D6DCDE33;">Canal</th>
+            <th style="background:#D6DCDE33;">Regional</th>
+            <th style="background:#D6DCDE33;">Código</th>
+            <th style="background:#D6DCDE33;">Parceiro</th>
+            <th style="background:#D6DCDE33;">Supervisor</th>
+            <th style="background:#D6DCDE33;">Gerente</th>
+            <th style="background:#D6DCDE33;">Classificação</th>
+            <th style="background:#D6DCDE33;">Venda Líquida</th>
+            <th style="background:#D6DCDE33;">Verba</th>
+            <th style="background:#D6DCDE33;">Utilizado</th>
+            <th style="background:#D6DCDE33;">Residual</th>
+            <th style="background:#00CEBA22;">Status da Verba</th>
+            <th style="background:#00CEBA22;">Motivo do Cancelamento</th>
+            <th style="background:#D6DCDE33;">ID Chamado</th>
+            <th style="background:#D6DCDE33;">Data da abertura do chamado</th>
+            <th style="background:#D6DCDE33;">Comprovação</th>
+            <th style="background:#D6DCDE33;">Lançamos a nota?</th>
+            <th style="background:#D6DCDE33;">Recado/Observações</th>
+            <th style="background:#00CEBA22;">Canal comprovação</th>
+            <th style="background:#00CEBA22;">Tipo comprovação</th>
+            <th style="background:#00CEBA22;">Histórico 6 meses</th>
+            <th style="background:#00CEBA22;">Repetição detectada</th>
+            <th style="background:#00CEBA22;">Sugestão gerada</th>
+          </tr>
+        </thead>
+        <tbody id="anTbody">
+          <tr><td colspan="24" class="loading">Carregando dados da planilha…</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</main>
+
+<footer>Dados ao vivo da planilha Qualifica+ — Âncora Consórcios.</footer>
+
+<script>
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyuiV9HHlxfC6gFKYkvbU7MGGXOE6jy71su26a2jEHwRqzFMAqwwULzO8PystQ9Kx2ptw/exec';
+
+const CANONICAL_MAP = [
+  ['MÊS DA VERBA','mes'], ['CANAL COMPROVAÇÃO','canalComprovacao'], ['CANAL','canal'],
+  ['REGIONAL/MARCA','regional'], ['COD','cod'], ['PARCEIRO','parceiro'], ['SUPERVISOR','supervisor'],
+  ['GERENTE','gerente'], ['CLASSIFICAÇÃO ATUAL','classificacao'], ['VENDA LÍQUIDA','vendaLiquida'],
+  ['VERBA DE MARKETING','verba'], ['UTILIZADO','utilizado'], ['RESIDUAL','residual'],
+  ['STATUS DA VERBA','statusVerba'], ['MOTIVO DO CANCELAMENTO','motivo'], ['ID CHAMADO','idChamado'],
+  ['DATA DA ABERTURA DO CHAMADO','dataAbertura'], ['COMPROVAÇÃO','comprovacao'],
+  ['LANÇAMOS A NOTA?','lancamosNota'], ['RECADO/OBSERVAÇÕES','observacoes'],
+  ['TIPO COMPROVAÇÃO','tipoComprovacao'], ['HISTÓRICO 6 MESES','historico'],
+  ['REPETIÇÃO DETECTADA','repeticao'], ['SUGESTÃO GERADA','sugestao']
+];
+
+let allRows = [];
+let activeStatus = null;
+
+function normalizeRow(raw) {
+  const out = {};
+  const usedKeys = new Set();
+  for (const [prefix, shortKey] of CANONICAL_MAP) {
+    const foundKey = Object.keys(raw).find(k => {
+      const firstLine = String(k).split('\n')[0].trim().toUpperCase();
+      return firstLine === prefix.toUpperCase() && !usedKeys.has(k);
+    });
+    if (foundKey) { out[shortKey] = raw[foundKey]; usedKeys.add(foundKey); }
+  }
+  return out;
+}
+
+function parseMes(value) {
+  const s = String(value || '');
+  const m = s.match(/^(\d{4})-(\d{2})/);
+  if (!m) return { key: s, label: s || '—' };
+  const nomes = ['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
+  const label = nomes[parseInt(m[2],10)-1] + '/' + m[1];
+  return { key: m[1]+m[2], label: label.charAt(0).toUpperCase()+label.slice(1) };
+}
+
+function fmtMoney(v) {
+  if (v === 'N/A' || v === null || v === undefined || v === '') return '—';
+  const n = Number(v);
+  if (isNaN(n)) return String(v);
+  return 'R$ ' + n.toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2});
+}
+
+function pillClassFor(classificacao) {
+  const c = String(classificacao || '').toLowerCase();
+  if (c.includes('diamante black')) return 'diamante-black';
+  if (c.includes('diamante')) return 'diamante';
+  return 'ouro';
+}
+
+function opStatusClassFor(text) {
+  const t = String(text || '').toUpperCase();
+  if (t.includes('AGUARDANDO COMPROVAÇÃO')) return 'op-comprovacao';
+  if (t.includes('AGUARDANDO ENVIO')) return 'op-nf';
+  if (t.includes('LANÇADA')) return 'op-lancada';
+  return 'op-blank';
+}
+
+async function loadData() {
+  try {
+    const data = await loadViaJsonp(APPS_SCRIPT_URL);
+    if (data.error) throw new Error(data.error);
+    allRows = data.rows.map(normalizeRow);
+    document.getElementById('updatedAtLabel').textContent =
+      'Atualizado em ' + new Date(data.updatedAt).toLocaleString('pt-BR');
+    populateFilters();
+    applyFilters();
+    applyAnFilters();
+  } catch (err) {
+    document.getElementById('dashTbody').innerHTML =
+      '<tr><td colspan="7" class="error-box">Não consegui carregar os dados agora. Detalhe: ' + err.message + '</td></tr>';
+    document.getElementById('anTbody').innerHTML =
+      '<tr><td colspan="24" class="error-box">Não consegui carregar os dados agora.</td></tr>';
+    document.getElementById('updatedAtLabel').textContent = 'Erro ao carregar';
+  }
+}
+
+// Carrega dados via JSONP (tag <script>) em vez de fetch() — evita o bloqueio de
+// CORS que navegadores aplicam a chamadas cross-origin para o Apps Script.
+function loadViaJsonp(url, timeoutMs) {
+  timeoutMs = timeoutMs || 15000;
+  return new Promise((resolve, reject) => {
+    const callbackName = 'qualificaMaisCb_' + Date.now();
+    const script = document.createElement('script');
+    let settled = false;
+
+    const cleanup = () => {
+      delete window[callbackName];
+      script.remove();
+      clearTimeout(timer);
+    };
+
+    window[callbackName] = (data) => {
+      if (settled) return;
+      settled = true;
+      cleanup();
+      resolve(data);
+    };
+
+    const timer = setTimeout(() => {
+      if (settled) return;
+      settled = true;
+      cleanup();
+      reject(new Error('Tempo esgotado ao tentar falar com a planilha (verifique o link do Apps Script).'));
+    }, timeoutMs);
+
+    script.onerror = () => {
+      if (settled) return;
+      settled = true;
+      cleanup();
+      reject(new Error('Não consegui acessar o link do Apps Script — confira se ele está publicado como "Qualquer pessoa".'));
+    };
+
+    const sep = url.includes('?') ? '&' : '?';
+    script.src = url + sep + 'callback=' + callbackName;
+    document.body.appendChild(script);
+  });
+}
+
+function populateFilters() {
+  const supervisores = [...new Set(allRows.map(r => r.supervisor).filter(Boolean))].sort();
+  const meses = [...new Map(allRows.map(r => [parseMes(r.mes).key, parseMes(r.mes)])).values()]
+    .sort((a,b) => b.key.localeCompare(a.key));
+
+  for (const selId of ['supSelect','supSelectAn']) {
+    const sel = document.getElementById(selId);
+    sel.innerHTML = '<option value="todos">Todos os supervisores</option>' +
+      supervisores.map(s => `<option value="${s}">${s}</option>`).join('');
+  }
+  for (const selId of ['monthSelect','monthSelectAn']) {
+    const sel = document.getElementById(selId);
+    sel.innerHTML = meses.map((m,i) => `<option value="${m.key}" ${i===0?'selected':''}>${m.label}</option>`).join('');
+  }
+}
+
+function filterByStatus(status, el) {
+  if (activeStatus === status) { activeStatus = null; el.classList.remove('active-filter'); }
+  else {
+    activeStatus = status;
+    document.querySelectorAll('.kpi').forEach(k => k.classList.remove('active-filter'));
+    el.classList.add('active-filter');
+  }
+  applyFilters();
+}
+
+function clearAllFilters() {
+  activeStatus = null;
+  document.querySelectorAll('.kpi').forEach(k => k.classList.remove('active-filter'));
+  document.getElementById('supSelect').value = 'todos';
+  if (document.getElementById('monthSelect').options.length) document.getElementById('monthSelect').selectedIndex = 0;
+  applyFilters();
+}
+
+function updateKPICounts(filtered) {
+  const counts = { 'Disponível': 0, 'Cancelada': 0 };
+  filtered.forEach(r => { if (counts.hasOwnProperty(r.statusVerba)) counts[r.statusVerba]++; });
+  document.getElementById('kpiDisponivel').textContent = counts['Disponível'];
+  document.getElementById('kpiCancelada').textContent = counts['Cancelada'];
+}
+
+function renderDashRow(r) {
+  const monthInfo = parseMes(r.mes);
+  const isCancelada = r.statusVerba === 'Cancelada';
+  const verbaTxt = isCancelada
+    ? '<span class="verba-txt">—</span>'
+    : `<span class="verba-txt">${fmtMoney(r.utilizado)} <small>/ ${fmtMoney(r.verba)}</small></span>`;
+
+  const historicoTxt = r.historico && r.historico !== ''
+    ? r.historico
+    : (r.tipoComprovacao || '<span class="none">sem histórico</span>');
+
+  let diversifTag;
+  if (isCancelada) {
+    diversifTag = `<span class="neutral-tag">● verba cancelada</span>`;
+  } else if (String(r.repeticao).toLowerCase().startsWith('sim')) {
+    diversifTag = `<span class="alert-tag">● repetido — ${r.repeticao.replace(/^sim\s*—?\s*/i,'')}</span>`;
+  } else {
+    diversifTag = `<span class="ok-tag">● uso saudável</span>`;
+  }
+
+  const opClass = opStatusClassFor(r.observacoes);
+  const opText = r.observacoes || 'CHAMADO AINDA NÃO RECEBIDO';
+
+  const sugestao = isCancelada
+    ? `<b>${r.motivo || 'Verba cancelada'}</b> — ${r.sugestao || 'verificar critérios do programa com o parceiro.'}`
+    : (r.sugestao || '—');
+
+  return `<tr data-sup="${r.supervisor||''}" data-month="${monthInfo.key}" data-status="${r.statusVerba||''}">
+    <td class="partner">${r.parceiro||'—'}<span class="sub">${r.regional||''} · cód. ${r.cod||''}</span></td>
+    <td><span class="pill ${pillClassFor(r.classificacao)}">${r.classificacao||'—'}</span></td>
+    <td>${verbaTxt}</td>
+    <td class="tipos-usados">${historicoTxt}</td>
+    <td>${diversifTag}</td>
+    <td><span class="opstatus ${opClass}">${opText}</span></td>
+    <td class="suggestion">${sugestao}</td>
+  </tr>`;
+}
+
+function applyFilters() {
+  const sup = document.getElementById('supSelect').value;
+  const month = document.getElementById('monthSelect').value;
+  const filtered = allRows.filter(r => {
+    const mk = parseMes(r.mes).key;
+    return (sup === 'todos' || r.supervisor === sup) && mk === month;
+  });
+  updateKPICounts(filtered);
+  const finalRows = activeStatus ? filtered.filter(r => r.statusVerba === activeStatus) : filtered;
+  const tbody = document.getElementById('dashTbody');
+  tbody.innerHTML = finalRows.length
+    ? finalRows.map(renderDashRow).join('')
+    : '<tr class="empty-row"><td colspan="7">Nenhum parceiro encontrado para esse filtro.</td></tr>';
+}
+
+function renderAnRow(r) {
+  const monthInfo = parseMes(r.mes);
+  return `<tr data-sup="${r.supervisor||''}" data-month="${monthInfo.key}">
+    <td class="txt">${monthInfo.label}</td>
+    <td class="txt">${r.canal||''}</td>
+    <td class="txt">${r.regional||''}</td>
+    <td>${r.cod||''}</td>
+    <td class="txt">${r.parceiro||''}</td>
+    <td class="txt">${r.supervisor||''}</td>
+    <td class="txt">${r.gerente||''}</td>
+    <td class="txt">${r.classificacao||''}</td>
+    <td>${fmtMoney(r.vendaLiquida)}</td>
+    <td>${fmtMoney(r.verba)}</td>
+    <td>${fmtMoney(r.utilizado)}</td>
+    <td>${fmtMoney(r.residual)}</td>
+    <td class="txt">${r.statusVerba||''}</td>
+    <td class="txt">${r.motivo||'—'}</td>
+    <td>${r.idChamado||'—'}</td>
+    <td>${r.dataAbertura||'—'}</td>
+    <td class="txt">${r.comprovacao||''}</td>
+    <td class="txt">${r.lancamosNota||''}</td>
+    <td class="txt">${r.observacoes||''}</td>
+    <td class="txt">${r.canalComprovacao||'—'}</td>
+    <td class="txt">${r.tipoComprovacao||'—'}</td>
+    <td class="txt">${r.historico||''}</td>
+    <td class="txt">${r.repeticao||''}</td>
+    <td class="txt">${r.sugestao||''}</td>
+  </tr>`;
+}
+
+function applyAnFilters() {
+  const sup = document.getElementById('supSelectAn').value;
+  const month = document.getElementById('monthSelectAn').value;
+  const filtered = allRows.filter(r => {
+    const mk = parseMes(r.mes).key;
+    return (sup === 'todos' || r.supervisor === sup) && mk === month;
+  });
+  const tbody = document.getElementById('anTbody');
+  tbody.innerHTML = filtered.length
+    ? filtered.map(renderAnRow).join('')
+    : '<tr class="empty-row"><td colspan="24">Nenhum registro encontrado para esse filtro.</td></tr>';
+}
+
+function showView(id, btn) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('nav.tabs button').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+loadData();
+</script>
+
+</body>
+</html>
