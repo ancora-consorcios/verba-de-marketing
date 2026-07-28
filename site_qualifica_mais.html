@@ -62,7 +62,7 @@
 
   .verba-txt{font-family:'Space Mono'; font-size:12px; color:var(--navy);}
   .verba-txt small{font-family:'Inter'; color:var(--muted);}
-  .tipos-usados{font-size:12.5px; color:var(--ink); max-width:220px; display:inline-block;}
+  .tipos-usados{font-size:12.5px; color:var(--ink); max-width:220px; display:block;}
   .tipos-usados .none{color:var(--muted); font-style:italic;}
 
   .alert-tag{display:inline-flex; align-items:center; gap:6px; background:var(--alert-bg); color:var(--alert); font-size:11.5px; font-weight:700; padding:4px 9px; border-radius:8px; white-space:nowrap;}
@@ -197,11 +197,19 @@ const CANONICAL_MAP = [
   ['GERENTE','gerente'], ['CLASSIFICAÇÃO ATUAL','classificacao'], ['VENDA LÍQUIDA','vendaLiquida'],
   ['VERBA DE MARKETING','verba'], ['UTILIZADO','utilizado'], ['RESIDUAL','residual'],
   ['STATUS DA VERBA','statusVerba'], ['MOTIVO DO CANCELAMENTO','motivo'], ['ID CHAMADO','idChamado'],
-  ['DATA DA ABERTURA DO CHAMADO','dataAbertura'], ['COMPROVAÇÃO','comprovacao'],
-  ['LANÇAMOS A NOTA?','lancamosNota'], ['RECADO/OBSERVAÇÕES','observacoes'],
-  ['TIPO COMPROVAÇÃO','tipoComprovacao'], ['HISTÓRICO 6 MESES','historico'],
+  ['DATA DA ABERTURA DO CHAMADO','dataAbertura'], ['DATA DE ABERTURA DO CHAMADO','dataAbertura'],
+  ['COMPROVAÇÃO','comprovacao'], ['LANÇAMOS A NOTA?','lancamosNota'], ['RECADO/OBSERVAÇÕES','observacoes'],
+  ['TIPO COMPROVAÇÃO','tipoComprovacao'], ['TIPO DE COMPROVAÇÃO','tipoComprovacao'],
+  ['HISTÓRICO 6 MESES','historico'],
   ['REPETIÇÃO DETECTADA','repeticao'], ['SUGESTÃO GERADA','sugestao']
 ];
+
+function normalizeStatus(v) {
+  const s = String(v || '').trim().toLowerCase();
+  if (s.startsWith('dispon')) return 'Disponível';
+  if (s.startsWith('cancel')) return 'Cancelada';
+  return v || '';
+}
 
 let allRows = [];
 let activeStatus = null;
@@ -264,6 +272,7 @@ async function loadData() {
     const data = await loadViaJsonp(APPS_SCRIPT_URL);
     if (data.error) throw new Error(data.error);
     allRows = data.rows.map(normalizeRow);
+    allRows.forEach(r => { r.statusVerba = normalizeStatus(r.statusVerba); });
     document.getElementById('updatedAtLabel').textContent =
       'Atualizado em ' + new Date(data.updatedAt).toLocaleString('pt-BR');
     populateFilters();
