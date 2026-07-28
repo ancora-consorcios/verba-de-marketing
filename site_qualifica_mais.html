@@ -17,12 +17,8 @@
 
   header{background:var(--navy); color:#fff; padding:20px 32px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;}
   .brand{display:flex; align-items:center; gap:14px;}
-  .logo{display:flex; flex-direction:column; line-height:1;}
-  .logo .word{font-family:'Manrope'; font-weight:800; font-size:19px; letter-spacing:1px; display:flex; align-items:center; gap:2px;}
-  .logo .word i{display:inline-block; width:11px; height:11px; border-radius:50%; border:2px solid var(--teal); position:relative; top:1px;}
-  .logo .sub{font-size:8.5px; letter-spacing:3px; color:var(--teal); margin-top:3px; font-family:'Manrope'; font-weight:700;}
-  .tag{font-size:11px; font-weight:700; letter-spacing:1.2px; text-transform:uppercase; color:var(--navy); background:var(--teal); padding:3px 9px; border-radius:20px;}
   header .period{font-family:'Space Mono'; font-size:11.5px; color:#9FD4CE; text-align:right;}
+  .tag{font-size:11px; font-weight:700; letter-spacing:1.2px; text-transform:uppercase; color:var(--navy); background:var(--teal); padding:3px 9px; border-radius:20px;}
 
   nav.tabs{display:flex; gap:6px; padding:14px 32px 0; background:var(--navy);}
   nav.tabs button{font-family:'Manrope'; font-weight:700; font-size:13.5px; background:transparent; color:#8FAAB8; border:none; padding:12px 18px; border-radius:10px 10px 0 0; cursor:pointer;}
@@ -87,9 +83,6 @@
   .an-table thead th{white-space:nowrap;}
   .an-table td{white-space:nowrap; font-family:'Space Mono'; font-size:12.5px;}
   .an-table td.txt{font-family:'Inter'; font-size:13px; white-space:normal; max-width:260px;}
-  .legend{display:flex; gap:18px; margin-bottom:16px; flex-wrap:wrap; font-size:12px; color:var(--muted);}
-  .legend span{display:inline-flex; align-items:center; gap:6px;}
-  .legend i{width:10px; height:10px; border-radius:3px; display:inline-block;}
   footer{text-align:center; padding:20px; font-size:11.5px; color:var(--muted);}
 
   .loading, .error-box{padding:40px; text-align:center; color:var(--muted); font-size:14px;}
@@ -138,6 +131,7 @@
       </div>
     </div>
 
+    <div class="an-table-wrap">
     <table id="dashTable">
       <thead>
         <tr>
@@ -154,6 +148,7 @@
         <tr><td colspan="7" class="loading">Carregando dados da planilha…</td></tr>
       </tbody>
     </table>
+    </div>
   </section>
 
   <section id="analitico" class="view">
@@ -231,6 +226,11 @@ function parseMes(value) {
   const nomes = ['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
   const label = nomes[parseInt(m[2],10)-1] + '/' + m[1];
   return { key: m[1]+m[2], label: label.charAt(0).toUpperCase()+label.slice(1) };
+}
+
+function esc(s) {
+  if (s === null || s === undefined) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 }
 
 function fmtMoney(v) {
@@ -368,27 +368,27 @@ function renderDashRow(r) {
     ? '<span class="verba-txt">—</span>'
     : `<span class="verba-txt">${fmtMoney(r.utilizado)} <small>/ ${fmtMoney(r.verba)}</small></span>`;
 
-  const historicoTxt = r.historico && r.historico !== ''
-    ? r.historico
-    : (r.tipoComprovacao || '<span class="none">sem histórico</span>');
+  const historicoRaw = r.historico && r.historico !== '' ? r.historico : (r.tipoComprovacao || '');
+  const historicoTxt = historicoRaw ? esc(historicoRaw) : '<span class="none">sem histórico</span>';
 
   let diversifTag;
+  const repeticaoStr = String(r.repeticao || '');
   if (isCancelada) {
     diversifTag = `<span class="neutral-tag">● verba cancelada</span>`;
-  } else if (String(r.repeticao).toLowerCase().startsWith('sim')) {
-    diversifTag = `<span class="alert-tag">● repetido — ${r.repeticao.replace(/^sim\s*—?\s*/i,'')}</span>`;
+  } else if (repeticaoStr.toLowerCase().startsWith('sim')) {
+    diversifTag = `<span class="alert-tag">● repetido — ${esc(repeticaoStr.replace(/^sim\s*—?\s*/i,''))}</span>`;
   } else {
     diversifTag = `<span class="ok-tag">● uso saudável</span>`;
   }
 
   const opClass = opStatusClassFor(r.observacoes);
-  const opText = r.observacoes || 'CHAMADO AINDA NÃO RECEBIDO';
+  const opText = esc(r.observacoes || 'CHAMADO AINDA NÃO RECEBIDO');
 
-  const sugestao = r.sugestao || (isCancelada ? 'Verificar critérios do programa com o parceiro.' : '—');
+  const sugestao = esc(r.sugestao || (isCancelada ? 'Verificar critérios do programa com o parceiro.' : '—'));
 
-  return `<tr data-sup="${r.supervisor||''}" data-month="${monthInfo.key}" data-status="${r.statusVerba||''}">
-    <td class="partner">${r.parceiro||'—'}<span class="sub">${r.regional||''} · cód. ${r.cod||''}</span></td>
-    <td><span class="pill ${pillClassFor(r.classificacao)}">${r.classificacao||'—'}</span></td>
+  return `<tr data-sup="${esc(r.supervisor)}" data-month="${monthInfo.key}" data-status="${esc(r.statusVerba)}">
+    <td class="partner">${esc(r.parceiro)||'—'}<span class="sub">${esc(r.regional)} · cód. ${esc(r.cod)}</span></td>
+    <td><span class="pill ${pillClassFor(r.classificacao)}">${esc(r.classificacao)||'—'}</span></td>
     <td>${verbaTxt}</td>
     <td class="tipos-usados">${historicoTxt}</td>
     <td>${diversifTag}</td>
@@ -413,16 +413,16 @@ function applyFilters() {
 }
 
 function renderAnRow(r) {
-  return `<tr data-sup="${r.supervisor||''}" data-month="${parseMes(r.mes).key}">
-    <td class="txt">${r.canal||''}</td>
-    <td class="txt">${r.regional||''}</td>
-    <td>${r.cod||''}</td>
-    <td class="txt">${r.parceiro||''}</td>
-    <td class="txt">${r.classificacao||''}</td>
+  return `<tr data-sup="${esc(r.supervisor)}" data-month="${parseMes(r.mes).key}">
+    <td class="txt">${esc(r.canal)}</td>
+    <td class="txt">${esc(r.regional)}</td>
+    <td>${esc(r.cod)}</td>
+    <td class="txt">${esc(r.parceiro)}</td>
+    <td class="txt">${esc(r.classificacao)}</td>
     <td>${fmtMoney(r.vendaLiquida)}</td>
     <td>${fmtMoney(r.verba)}</td>
-    <td>${r.idChamado||'—'}</td>
-    <td class="txt">${r.observacoes||''}</td>
+    <td>${esc(r.idChamado)||'—'}</td>
+    <td class="txt">${esc(r.observacoes)}</td>
   </tr>`;
 }
 
