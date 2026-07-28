@@ -156,8 +156,8 @@
       <select id="monthSelect" onchange="applyFilters()"><option value="">Carregando...</option></select>
       <label>Supervisor</label>
       <select id="supSelect" onchange="applyFilters()"><option value="todos">Todos os supervisores</option></select>
-      <span class="hint">Mostra os parceiros com direito a verba (Ouro, Diamante, Diamante Black) do supervisor no mês selecionado.</span>
       <button class="clear-filter" id="clearFilterBtn" onclick="clearAllFilters()">✕ limpar filtros</button>
+      <span class="hint">Mostra os parceiros com direito a verba (Ouro, Diamante e Diamante Black) do supervisor e mês selecionados.</span>
     </div>
 
     <div class="kpis">
@@ -180,7 +180,7 @@
           <th>Parceiro</th>
           <th>Classificação</th>
           <th>Verba (utilizado / disponível)</th>
-          <th>Tipos usados (histórico)</th>
+          <th>Histórico de utilização da verba</th>
           <th>Diversificação</th>
           <th>Status</th>
           <th>Sugestão</th>
@@ -195,14 +195,13 @@
 
   <section id="analitico" class="view">
     <p style="font-size:12.5px; color:var(--muted); margin-top:0;">
-      Mostra os parceiros com direito a verba (Ouro, Diamante, Diamante Black) do supervisor no mês selecionado.
+      Mostra os parceiros com direito a verba (Ouro, Diamante e Diamante Black) do supervisor e mês selecionados.
     </p>
     <div class="toolbar">
       <label>Mês da verba</label>
       <select id="monthSelectAn" onchange="applyAnFilters()"><option value="">Carregando...</option></select>
       <label>Supervisor</label>
       <select id="supSelectAn" onchange="applyAnFilters()"><option value="todos">Todos os supervisores</option></select>
-      <span class="hint">Base única contemplando todos os meses.</span>
       <button class="clear-filter" onclick="clearAnFilters()">✕ limpar filtros</button>
     </div>
     <div class="an-table-wrap">
@@ -234,42 +233,36 @@
 
     <div class="calc-grid">
       <div class="calc-card">
-        <h3>1º Passo — Condição do parceiro</h3>
+        <h3>Canal</h3>
         <div class="calc-radio-group">
           <label class="calc-radio"><input type="radio" name="calcCanal" value="ancora" onchange="calcularVerba()"> Âncora</label>
           <label class="calc-radio"><input type="radio" name="calcCanal" value="bevi" onchange="calcularVerba()"> Bevi, White Label e outros bens</label>
           <label class="calc-radio"><input type="radio" name="calcCanal" value="leves" onchange="calcularVerba()"> Leves</label>
         </div>
+        <h3>Classificação</h3>
         <div class="calc-radio-group">
           <label class="calc-radio"><input type="radio" name="calcCategoria" value="diamante_black" onchange="calcularVerba()"> Diamante Black</label>
           <label class="calc-radio"><input type="radio" name="calcCategoria" value="diamante" onchange="calcularVerba()"> Diamante</label>
           <label class="calc-radio"><input type="radio" name="calcCategoria" value="ouro" onchange="calcularVerba()"> Ouro</label>
         </div>
-        <div class="calc-input-field">
+        <div class="calc-input-field" style="margin-bottom:6px;">
           <label>Data de entrada do parceiro <span style="color:var(--alert);">*</span></label>
           <input type="date" id="calcDataEntrada" onchange="calcularVerba()">
-        </div>
-        <div class="calc-input-field" style="margin-bottom:6px;">
-          <label>Mês de referência (simulação) <span style="color:var(--alert);">*</span></label>
-          <input type="date" id="calcDataReferencia" onchange="calcularVerba()">
-        </div>
-        <div style="font-size:11px; color:var(--muted); line-height:1.4;">
-          Use o <b>último dia</b> do mês que está simulando como "Mês 1 (Atual)" — ex: 30/06/2026 para simular junho, não a data de hoje.
         </div>
       </div>
 
       <div class="calc-card">
-        <h3>2º Passo — Vendas brutas (últimos 12 meses) <span style="color:var(--alert);">*</span></h3>
+        <h3>Vendas brutas (últimos 12 meses) <span style="color:var(--alert);">*</span></h3>
         <div class="calc-months" id="calcMonths"></div>
         <div class="calc-total-row"><span>Total</span><span class="val" id="calcTotalBruto">R$ 0,00</span></div>
       </div>
 
       <div>
         <div class="calc-card" style="margin-bottom:16px;">
-          <h3>3º Passo — Eficiência e venda líquida</h3>
+          <h3>Eficiência e venda líquida</h3>
           <div class="calc-input-field">
             <label>Cancelado + Inadimplente <span style="color:var(--alert);">*</span></label>
-            <input type="text" inputmode="decimal" id="calcCancelado" placeholder="0,00" oninput="calcularVerba()">
+            <input type="text" inputmode="decimal" id="calcCancelado" placeholder="R$ 0,00" oninput="maskMoneyInput(this); calcularVerba()">
           </div>
           <div class="calc-result-row"><span class="lbl">Frequência de vendas (6 meses)</span><span class="val" id="calcFrequencia">—</span></div>
           <div class="calc-result-row"><span class="lbl">Média venda bruta</span><span class="val" id="calcMedia">R$ 0,00</span></div>
@@ -279,7 +272,7 @@
         </div>
 
         <div class="calc-final">
-          <div class="lbl">4º Passo — Verba simulada</div>
+          <div class="lbl">Verba simulada</div>
           <div class="val" id="calcResultado">Preencha os campos</div>
         </div>
       </div>
@@ -569,14 +562,55 @@ function parseNum(v) {
   return isNaN(n) ? 0 : n;
 }
 
+// Máscara contábil brasileira: digita números e formata como 1.234,56 automaticamente.
+function maskMoneyInput(el) {
+  let digits = el.value.replace(/\D/g, '');
+  digits = digits.replace(/^0+(?=\d)/, '');
+  if (!digits) { el.value = ''; return; }
+  while (digits.length < 3) digits = '0' + digits;
+  const intPart = digits.slice(0, -2).replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  const centPart = digits.slice(-2);
+  el.value = 'R$ ' + intPart + ',' + centPart;
+}
+
+const MESES_ABREV = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+
 function buildCalcMonths() {
-  const labels = ['Mês 1 (Atual)','Mês 2','Mês 3','Mês 4','Mês 5','Mês 6','Mês 7','Mês 8','Mês 9','Mês 10','Mês 11','Mês 12'];
   const wrap = document.getElementById('calcMonths');
-  wrap.innerHTML = labels.map((l, i) => `
+  let html = `
     <div class="calc-month-field">
-      <label>${l}${i < 6 ? ' <span style="color:var(--alert);">*</span>' : ''}</label>
-      <input type="text" inputmode="decimal" id="calcMes${i}" placeholder="0,00" oninput="calcularVerba()">
-    </div>`).join('');
+      <label style="display:flex; align-items:center; justify-content:space-between; gap:6px;">
+        <span>Mês da verba desejada <span style="color:var(--alert);">*</span></span>
+        <input type="month" id="calcMesRef" onchange="onMesRefChange()" style="font-family:'Space Mono'; font-size:10.5px; border:1px solid var(--line); border-radius:6px; padding:2px 3px; width:88px;">
+      </label>
+      <input type="text" inputmode="decimal" id="calcMes0" placeholder="R$ 0,00" oninput="maskMoneyInput(this); calcularVerba()">
+    </div>`;
+  for (let i = 1; i < 12; i++) {
+    html += `
+    <div class="calc-month-field">
+      <label id="calcMesLabel${i}">Mês ${i+1}${i < 6 ? ' <span style="color:var(--alert);">*</span>' : ''}</label>
+      <input type="text" inputmode="decimal" id="calcMes${i}" placeholder="R$ 0,00" oninput="maskMoneyInput(this); calcularVerba()">
+    </div>`;
+  }
+  wrap.innerHTML = html;
+}
+
+function onMesRefChange() {
+  updateMesLabels();
+  calcularVerba();
+}
+
+function updateMesLabels() {
+  const ref = document.getElementById('calcMesRef').value; // "YYYY-MM"
+  if (!ref) return;
+  const [y, m] = ref.split('-').map(Number);
+  for (let i = 1; i < 12; i++) {
+    let mm = m - i, yy = y;
+    while (mm <= 0) { mm += 12; yy--; }
+    const label = document.getElementById('calcMesLabel' + i);
+    const req = i < 6 ? ' <span style="color:var(--alert);">*</span>' : '';
+    label.innerHTML = `${MESES_ABREV[mm-1]}/${String(yy).slice(-2)}${req}`;
+  }
 }
 
 // Meses completos entre duas datas, equivalente ao DATEDIF(...,"m") do Excel/Sheets.
@@ -591,6 +625,13 @@ function parseDateInput(id) {
   if (!v) return null;
   const [y,m,d] = v.split('-').map(Number);
   return new Date(y, m-1, d);
+}
+
+function ultimoDiaMesRef() {
+  const ref = document.getElementById('calcMesRef').value; // "YYYY-MM"
+  if (!ref) return null;
+  const [y, m] = ref.split('-').map(Number);
+  return new Date(y, m, 0); // dia 0 do mês seguinte = último dia do mês escolhido
 }
 
 function calcularVerba() {
@@ -622,7 +663,7 @@ function calcularVerba() {
   }
 
   const dataEntrada = parseDateInput('calcDataEntrada');
-  const dataReferencia = parseDateInput('calcDataReferencia');
+  const dataReferencia = ultimoDiaMesRef();
   let divisor = 12;
   if (dataEntrada && dataReferencia) {
     divisor = Math.max(1, Math.min(12, mesesCompletos(dataEntrada, dataReferencia) + 1));
@@ -638,7 +679,7 @@ function calcularVerba() {
 
   if (!dataEntrada || !dataReferencia) {
     document.getElementById('calcBeneficio').textContent = '—';
-    resultEl.textContent = 'Preencha as datas de entrada e referência';
+    resultEl.textContent = 'Preencha a data de entrada e o mês atual (Mês 1)';
     resultEl.classList.add('err');
     return;
   }
@@ -678,9 +719,9 @@ function calcularVerba() {
 
 function initCalcDefaults() {
   const hoje = new Date();
-  const ultimoDiaMes = new Date(hoje.getFullYear(), hoje.getMonth()+1, 0);
-  const iso = ultimoDiaMes.toISOString().split('T')[0];
-  document.getElementById('calcDataReferencia').value = iso;
+  const iso = hoje.getFullYear() + '-' + String(hoje.getMonth()+1).padStart(2,'0');
+  document.getElementById('calcMesRef').value = iso;
+  updateMesLabels();
 }
 
 buildCalcMonths();
