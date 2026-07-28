@@ -88,6 +88,47 @@
   .loading, .error-box{padding:40px; text-align:center; color:var(--muted); font-size:14px;}
   .error-box{color:var(--alert);}
   .empty-row td{text-align:center; color:var(--muted); padding:24px;}
+
+  .calc-grid{display:grid; grid-template-columns:1fr 1.3fr 1fr; gap:16px; align-items:start;}
+  @media (max-width:980px){ .calc-grid{grid-template-columns:1fr;} }
+  .calc-card{background:var(--card); border:1px solid var(--line); border-radius:14px; padding:20px;}
+  .calc-card h3{font-size:12px; text-transform:uppercase; letter-spacing:.5px; color:var(--navy); margin:0 0 14px; font-family:'Manrope';}
+  .calc-radio-group{display:flex; flex-direction:column; gap:8px; margin-bottom:18px;}
+  .calc-radio-group:last-child{margin-bottom:0;}
+  .calc-radio{display:flex; align-items:center; gap:9px; font-size:13.5px; color:var(--ink); cursor:pointer; padding:7px 10px; border-radius:8px; border:1.5px solid var(--line);}
+  .calc-radio:has(input:checked){border-color:var(--teal); background:var(--ok-bg);}
+  .calc-radio input{accent-color:var(--navy); width:15px; height:15px; cursor:pointer;}
+
+  .calc-months{display:grid; grid-template-columns:1fr 1fr; gap:9px 14px;}
+  .calc-month-field{display:flex; flex-direction:column; gap:4px;}
+  .calc-month-field label{font-size:11px; color:var(--muted); font-weight:600;}
+  .calc-month-field input{
+    font-family:'Space Mono'; font-size:13px; color:var(--navy); border:1.5px solid var(--line);
+    border-radius:8px; padding:7px 10px; width:100%;
+  }
+  .calc-total-row{
+    display:flex; justify-content:space-between; align-items:center; margin-top:14px; padding-top:14px;
+    border-top:1px solid var(--line); font-family:'Manrope'; font-weight:700; color:var(--navy); font-size:13.5px;
+  }
+  .calc-total-row span.val{font-family:'Space Mono';}
+
+  .calc-input-field{margin-bottom:16px;}
+  .calc-input-field label{display:block; font-size:11.5px; color:var(--muted); font-weight:600; margin-bottom:5px;}
+  .calc-input-field input{
+    font-family:'Space Mono'; font-size:14px; color:var(--navy); border:1.5px solid var(--line);
+    border-radius:8px; padding:9px 12px; width:100%;
+  }
+  .calc-result-row{display:flex; justify-content:space-between; align-items:baseline; padding:9px 0; border-bottom:1px solid var(--line); font-size:13px;}
+  .calc-result-row:last-child{border-bottom:none;}
+  .calc-result-row .lbl{color:var(--muted); font-weight:600;}
+  .calc-result-row .val{font-family:'Space Mono'; font-weight:700; color:var(--navy);}
+
+  .calc-final{
+    background:var(--navy); border-radius:14px; padding:22px; text-align:center; color:#fff;
+  }
+  .calc-final .lbl{font-size:11px; letter-spacing:1px; text-transform:uppercase; color:#9FD4CE; margin-bottom:10px;}
+  .calc-final .val{font-family:'Space Mono'; font-weight:700; font-size:26px; color:var(--teal);}
+  .calc-final .val.err{color:#F2A488; font-size:15px;}
 </style>
 </head>
 <body>
@@ -105,6 +146,7 @@
 <nav class="tabs">
   <button class="active" onclick="showView('dash', this)">Dashboard</button>
   <button onclick="showView('analitico', this)">Analítico</button>
+  <button onclick="showView('calculadora', this)">Calculadora</button>
 </nav>
 
 <main>
@@ -182,6 +224,65 @@
           <tr><td colspan="9" class="loading">Carregando dados da planilha…</td></tr>
         </tbody>
       </table>
+    </div>
+  </section>
+
+  <section id="calculadora" class="view">
+    <p style="font-size:12.5px; color:var(--muted); margin-top:0;">
+      Simulação aproximada — use pra estimar o valor de verba de um parceiro antes do fechamento oficial.
+    </p>
+
+    <div class="calc-grid">
+      <div class="calc-card">
+        <h3>1º Passo — Condição do parceiro</h3>
+        <div class="calc-radio-group">
+          <label class="calc-radio"><input type="radio" name="calcCanal" value="ancora" onchange="calcularVerba()"> Âncora</label>
+          <label class="calc-radio"><input type="radio" name="calcCanal" value="bevi" onchange="calcularVerba()"> Bevi, White Label e outros bens</label>
+          <label class="calc-radio"><input type="radio" name="calcCanal" value="leves" onchange="calcularVerba()"> Leves</label>
+        </div>
+        <div class="calc-radio-group">
+          <label class="calc-radio"><input type="radio" name="calcCategoria" value="diamante_black" onchange="calcularVerba()"> Diamante Black</label>
+          <label class="calc-radio"><input type="radio" name="calcCategoria" value="diamante" onchange="calcularVerba()"> Diamante</label>
+          <label class="calc-radio"><input type="radio" name="calcCategoria" value="ouro" onchange="calcularVerba()"> Ouro</label>
+        </div>
+        <div class="calc-input-field">
+          <label>Data de entrada do parceiro <span style="color:var(--alert);">*</span></label>
+          <input type="date" id="calcDataEntrada" onchange="calcularVerba()">
+        </div>
+        <div class="calc-input-field" style="margin-bottom:6px;">
+          <label>Mês de referência (simulação) <span style="color:var(--alert);">*</span></label>
+          <input type="date" id="calcDataReferencia" onchange="calcularVerba()">
+        </div>
+        <div style="font-size:11px; color:var(--muted); line-height:1.4;">
+          Use o <b>último dia</b> do mês que está simulando como "Mês 1 (Atual)" — ex: 30/06/2026 para simular junho, não a data de hoje.
+        </div>
+      </div>
+
+      <div class="calc-card">
+        <h3>2º Passo — Vendas brutas (últimos 12 meses) <span style="color:var(--alert);">*</span></h3>
+        <div class="calc-months" id="calcMonths"></div>
+        <div class="calc-total-row"><span>Total</span><span class="val" id="calcTotalBruto">R$ 0,00</span></div>
+      </div>
+
+      <div>
+        <div class="calc-card" style="margin-bottom:16px;">
+          <h3>3º Passo — Eficiência e venda líquida</h3>
+          <div class="calc-input-field">
+            <label>Cancelado + Inadimplente <span style="color:var(--alert);">*</span></label>
+            <input type="text" inputmode="decimal" id="calcCancelado" placeholder="0,00" oninput="calcularVerba()">
+          </div>
+          <div class="calc-result-row"><span class="lbl">Frequência de vendas (6 meses)</span><span class="val" id="calcFrequencia">—</span></div>
+          <div class="calc-result-row"><span class="lbl">Média venda bruta</span><span class="val" id="calcMedia">R$ 0,00</span></div>
+          <div class="calc-result-row"><span class="lbl">Venda líquida</span><span class="val" id="calcVendaLiquida">R$ 0,00</span></div>
+          <div class="calc-result-row"><span class="lbl">Índice de eficiência</span><span class="val" id="calcEficiencia">0%</span></div>
+          <div class="calc-result-row"><span class="lbl">Benefício por categoria</span><span class="val" id="calcBeneficio">—</span></div>
+        </div>
+
+        <div class="calc-final">
+          <div class="lbl">4º Passo — Verba simulada</div>
+          <div class="val" id="calcResultado">Preencha os campos</div>
+        </div>
+      </div>
     </div>
   </section>
 </main>
@@ -290,7 +391,7 @@ async function loadData() {
 // Carrega dados via JSONP (tag <script>) em vez de fetch() — evita o bloqueio de
 // CORS que navegadores aplicam a chamadas cross-origin para o Apps Script.
 function loadViaJsonp(url, timeoutMs) {
-  timeoutMs = timeoutMs || 15000;
+  timeoutMs = timeoutMs || 25000;
   return new Promise((resolve, reject) => {
     const callbackName = 'qualificaMaisCb_' + Date.now();
     const script = document.createElement('script');
@@ -460,6 +561,131 @@ function showView(id, btn) {
   document.querySelectorAll('nav.tabs button').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
 }
+
+// ---- Calculadora da Verba (simulação) ----
+function parseNum(v) {
+  if (!v) return 0;
+  const n = Number(String(v).replace(/\./g,'').replace(',', '.').replace(/[^\d.-]/g,''));
+  return isNaN(n) ? 0 : n;
+}
+
+function buildCalcMonths() {
+  const labels = ['Mês 1 (Atual)','Mês 2','Mês 3','Mês 4','Mês 5','Mês 6','Mês 7','Mês 8','Mês 9','Mês 10','Mês 11','Mês 12'];
+  const wrap = document.getElementById('calcMonths');
+  wrap.innerHTML = labels.map((l, i) => `
+    <div class="calc-month-field">
+      <label>${l}${i < 6 ? ' <span style="color:var(--alert);">*</span>' : ''}</label>
+      <input type="text" inputmode="decimal" id="calcMes${i}" placeholder="0,00" oninput="calcularVerba()">
+    </div>`).join('');
+}
+
+// Meses completos entre duas datas, equivalente ao DATEDIF(...,"m") do Excel/Sheets.
+function mesesCompletos(inicio, fim) {
+  let m = (fim.getFullYear() - inicio.getFullYear()) * 12 + (fim.getMonth() - inicio.getMonth());
+  if (fim.getDate() < inicio.getDate()) m--;
+  return Math.max(0, m);
+}
+
+function parseDateInput(id) {
+  const v = document.getElementById(id).value;
+  if (!v) return null;
+  const [y,m,d] = v.split('-').map(Number);
+  return new Date(y, m-1, d);
+}
+
+function calcularVerba() {
+  const canalEl = document.querySelector('input[name="calcCanal"]:checked');
+  const categoriaEl = document.querySelector('input[name="calcCategoria"]:checked');
+  const canal = canalEl ? canalEl.value : null;
+  const categoria = categoriaEl ? categoriaEl.value : null;
+
+  const mesesVal = [];
+  for (let i = 0; i < 12; i++) mesesVal.push(parseNum(document.getElementById('calcMes' + i).value));
+  const totalBruto = mesesVal.reduce((a,b) => a+b, 0);
+  const cancelado = parseNum(document.getElementById('calcCancelado').value);
+  const frequencia = mesesVal.slice(0,6).filter(v => v > 0).length;
+
+  document.getElementById('calcTotalBruto').textContent = fmtMoney(totalBruto);
+  document.getElementById('calcFrequencia').textContent = frequencia + '/6 meses';
+
+  const resultEl = document.getElementById('calcResultado');
+  resultEl.classList.remove('err');
+
+  if (totalBruto <= 0) {
+    document.getElementById('calcMedia').textContent = 'R$ 0,00';
+    document.getElementById('calcVendaLiquida').textContent = 'R$ 0,00';
+    document.getElementById('calcEficiencia').textContent = '0%';
+    document.getElementById('calcBeneficio').textContent = '—';
+    resultEl.textContent = 'Preencha os valores de vendas brutas';
+    resultEl.classList.add('err');
+    return;
+  }
+
+  const dataEntrada = parseDateInput('calcDataEntrada');
+  const dataReferencia = parseDateInput('calcDataReferencia');
+  let divisor = 12;
+  if (dataEntrada && dataReferencia) {
+    divisor = Math.max(1, Math.min(12, mesesCompletos(dataEntrada, dataReferencia) + 1));
+  }
+
+  const mediaVendaBruta = totalBruto / divisor;
+  const indiceEficiencia = 1 - (cancelado / totalBruto);
+  const vendaLiquida = mediaVendaBruta * indiceEficiencia;
+
+  document.getElementById('calcMedia').textContent = fmtMoney(mediaVendaBruta);
+  document.getElementById('calcVendaLiquida').textContent = fmtMoney(vendaLiquida);
+  document.getElementById('calcEficiencia').textContent = (indiceEficiencia * 100).toLocaleString('pt-BR', {maximumFractionDigits:2}) + '%';
+
+  if (!dataEntrada || !dataReferencia) {
+    document.getElementById('calcBeneficio').textContent = '—';
+    resultEl.textContent = 'Preencha as datas de entrada e referência';
+    resultEl.classList.add('err');
+    return;
+  }
+
+  if (frequencia < 6) {
+    document.getElementById('calcBeneficio').textContent = '—';
+    resultEl.textContent = 'SEM FREQUÊNCIA DE VENDA';
+    resultEl.classList.add('err');
+    return;
+  }
+
+  if (indiceEficiencia < 0.5) {
+    document.getElementById('calcBeneficio').textContent = '—';
+    resultEl.textContent = 'EFICIÊNCIA ABAIXO DE 50%';
+    resultEl.classList.add('err');
+    return;
+  }
+
+  let beneficio = null;
+  if (canal === 'bevi') {
+    beneficio = (categoria === 'diamante_black' || categoria === 'diamante') ? 0.001 : (categoria === 'ouro' ? 0 : null);
+  } else if (canal === 'ancora' || canal === 'leves') {
+    beneficio = categoria === 'diamante_black' ? 0.0025 : categoria === 'diamante' ? 0.002 : categoria === 'ouro' ? 0.001 : null;
+  }
+
+  if (!canal || !categoria || beneficio === null) {
+    document.getElementById('calcBeneficio').textContent = '—';
+    resultEl.textContent = 'Selecione o canal e a categoria';
+    resultEl.classList.add('err');
+    return;
+  }
+
+  document.getElementById('calcBeneficio').textContent = (beneficio * 100).toLocaleString('pt-BR', {maximumFractionDigits:2}) + '%';
+  const verbaSimulada = vendaLiquida * beneficio;
+  resultEl.textContent = fmtMoney(verbaSimulada);
+}
+
+function initCalcDefaults() {
+  const hoje = new Date();
+  const ultimoDiaMes = new Date(hoje.getFullYear(), hoje.getMonth()+1, 0);
+  const iso = ultimoDiaMes.toISOString().split('T')[0];
+  document.getElementById('calcDataReferencia').value = iso;
+}
+
+buildCalcMonths();
+initCalcDefaults();
+calcularVerba();
 
 loadData();
 </script>
