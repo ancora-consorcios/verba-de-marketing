@@ -384,9 +384,7 @@ function renderDashRow(r) {
   const opClass = opStatusClassFor(r.observacoes);
   const opText = r.observacoes || 'CHAMADO AINDA NÃO RECEBIDO';
 
-  const sugestao = isCancelada
-    ? `<b>${r.motivo || 'Verba cancelada'}</b> — ${r.sugestao || 'verificar critérios do programa com o parceiro.'}`
-    : (r.sugestao || '—');
+  const sugestao = r.sugestao || (isCancelada ? 'Verificar critérios do programa com o parceiro.' : '—');
 
   return `<tr data-sup="${r.supervisor||''}" data-month="${monthInfo.key}" data-status="${r.statusVerba||''}">
     <td class="partner">${r.parceiro||'—'}<span class="sub">${r.regional||''} · cód. ${r.cod||''}</span></td>
