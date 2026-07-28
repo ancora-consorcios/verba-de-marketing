@@ -57,9 +57,12 @@
   .partner{font-weight:700; color:var(--navy);}
   .partner .sub{display:block; font-weight:400; color:var(--muted); font-size:11.5px; margin-top:2px;}
   .pill{display:inline-block; font-size:11px; font-weight:700; padding:3px 9px; border-radius:20px; letter-spacing:.3px; white-space:nowrap;}
-  .pill.diamante-black{background:var(--navy); color:#fff;}
-  .pill.diamante{background:var(--lightblue); color:#fff;}
-  .pill.ouro{background:#EAC257; color:#4A3A05;}
+  .pill.diamante-black{background:#000000; color:#fff;}
+  .pill.diamante{background:#2F6FB2; color:#fff;}
+  .pill.ouro{background:#FFD54A; color:#3D2E00;}
+  .pill.prata{background:#9AA0A6; color:#fff;}
+  .pill.bronze{background:#A15C2E; color:#fff;}
+  .pill.qualifying{background:transparent; color:var(--muted); font-weight:700; padding:3px 0;}
 
   .verba-txt{font-family:'Space Mono'; font-size:12px; color:var(--navy);}
   .verba-txt small{font-family:'Inter'; color:var(--muted);}
@@ -241,6 +244,10 @@ function pillClassFor(classificacao) {
   const c = String(classificacao || '').toLowerCase();
   if (c.includes('diamante black')) return 'diamante-black';
   if (c.includes('diamante')) return 'diamante';
+  if (c.includes('ouro')) return 'ouro';
+  if (c.includes('prata')) return 'prata';
+  if (c.includes('bronze')) return 'bronze';
+  if (c.includes('qualif')) return 'qualifying';
   return 'ouro';
 }
 
